@@ -1,7 +1,61 @@
 import os, telebot, threading, io, time
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
+import os
+import time
+import requests
+import sys
 
+RAW_URL = "https://raw.githubusercontent.com/Ibnubae765/license-system/main/license.txt"
+
+def clear():
+    os.system("cls" if os.name == "nt" else "clear")
+
+def banner():
+    print("=" * 40)
+    print("        LICENSE VERIFICATION")
+    print("=" * 40)
+
+def loading():
+    clear()
+    print("License Valid!\n")
+    for i in range(1, 101):
+        filled = i // 5
+        bar = "█" * filled + "░" * (20 - filled)
+        sys.stdout.write(f"\rLoading [{bar}] {i}%")
+        sys.stdout.flush()
+        time.sleep(0.05)
+    print("\n\nAccess Granted!")
+
+def get_keys():
+    try:
+        r = requests.get(RAW_URL, timeout=10)
+        if r.status_code == 200:
+            return [x.strip() for x in r.text.splitlines() if x.strip()]
+    except:
+        pass
+    return []
+
+def verify():
+    clear()
+    banner()
+    key = input("Masukkan License Key : ").strip()
+
+    keys = get_keys()
+
+    if key in keys:
+        loading()
+        main_script()
+    else:
+        print("\nLicense Invalid / Not Found")
+
+def main_script():
+    time.sleep(1)
+    clear()
+    print("Masuk ke fitur utama script di sini...")
+
+if __name__ == "__main__":
+    verify()
 TOKEN = "8648394453:AAGahBL3Vvx7p8mdTDJek4q3MMxAiCO-fRw"
 BASE_URL = "https://youtube.idstore.my.id" 
 GROUP_ID = "-5022650805" 
